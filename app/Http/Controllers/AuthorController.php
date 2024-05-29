@@ -10,9 +10,9 @@ use OpenApi\Annotations as OA;
 
 /**
  * @OA\Info(
- *     title="Author API",
+ *     title="LMS API",
  *     version="1.0.0",
- *     description="API for managing authors"
+ *     description="API for managing LMS"
  * )
  * 
  * @OA\PathItem(path="/api/authors")
