@@ -1,5 +1,5 @@
 # Learning Management System (Laravel)
-
+![Screenshot](screenshot.png "Application Screenshot")
 This repository contains a simple Learning Management System (LMS) built using the Laravel framework. The system allows users to manage authors, books, and perform searches for books by title.
 
 ## Requirements
@@ -21,14 +21,12 @@ To run this project, ensure you have the following installed:
 2. Install PHP dependencies using Composer: `composer install`
 3. Set up your environment file: `cp .env.example .env`
 4. Update the `.env` file with your MySQL database credentials:
-
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=your_database_name
-DB_USERNAME=your_database_username
-DB_PASSWORD=your_database_password
-
+    - DB_CONNECTION=mysql
+    - DB_HOST=127.0.0.1
+    - DB_PORT=3306
+    - DB_DATABASE=your_database_name
+    - DB_USERNAME=your_database_username
+    - DB_PASSWORD=your_database_password
 5. Generate an application key: `php artisan key:generate`
 6. Migrate the database: `php artisan migrate`
 7. Serve the application: `php artisan serve`
