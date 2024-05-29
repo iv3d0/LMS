@@ -1,0 +1,2455 @@
+openapi: 3.0.3
+info:
+  title: Laravel
+  description: ''
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost'
+paths:
+  /api/documentation:
+    get:
+      summary: 'Display Swagger API page.'
+      operationId: displaySwaggerAPIPage
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>L5 Swagger UI</title>\n    <link rel=\"stylesheet\" type=\"text/css\" href=\"http://localhost/docs/asset/swagger-ui.css?v=fd5df98cfc0e58ed507042cd86a1f1df\">\n    <link rel=\"icon\" type=\"image/png\" href=\"http://localhost/docs/asset/favicon-32x32.png?v=40d4f2c38d1cd854ad463f16373cbcb6\" sizes=\"32x32\"/>\n    <link rel=\"icon\" type=\"image/png\" href=\"http://localhost/docs/asset/favicon-16x16.png?v=f0ae831196d55d8f4115b6c5e8ec5384\" sizes=\"16x16\"/>\n    <style>\n    html\n    {\n        box-sizing: border-box;\n        overflow: -moz-scrollbars-vertical;\n        overflow-y: scroll;\n    }\n    *,\n    *:before,\n    *:after\n    {\n        box-sizing: inherit;\n    }\n\n    body {\n      margin:0;\n      background: #fafafa;\n    }\n    </style>\n</head>\n\n<body>\n<div id=\"swagger-ui\"></div>\n\n<script src=\"http://localhost/docs/asset/swagger-ui-bundle.js?v=bccc97f77bdb8edc590ae3abdf83b9a7\"></script>\n<script src=\"http://localhost/docs/asset/swagger-ui-standalone-preset.js?v=861c3618a16aefc88e19a052836718e5\"></script>\n<script>\n    window.onload = function() {\n        // Build a system\n        const ui = SwaggerUIBundle({\n            dom_id: '#swagger-ui',\n            url: \"http://localhost/docs/api-docs.json\",\n            operationsSorter: null,\n            configUrl: null,\n            validatorUrl: null,\n            oauth2RedirectUrl: \"http://localhost/api/oauth2-callback\",\n\n            requestInterceptor: function(request) {\n                request.headers['X-CSRF-TOKEN'] = '';\n                return request;\n            },\n\n            presets: [\n                SwaggerUIBundle.presets.apis,\n                SwaggerUIStandalonePreset\n            ],\n\n            plugins: [\n                SwaggerUIBundle.plugins.DownloadUrl\n            ],\n\n            layout: \"StandaloneLayout\",\n            docExpansion : \"none\",\n            deepLinking: true,\n            filter: true,\n            persistAuthorization: \"false\",\n\n        })\n\n        window.ui = ui\n\n            }\n</script>\n</body>\n</html>\n"
+      tags:
+        - Endpoints
+      security: []
+  /api/oauth2-callback:
+    get:
+      summary: 'Display Oauth2 callback pages.'
+      operationId: displayOauth2CallbackPages
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "<!doctype html>\n<html lang=\"en-US\">\n<head>\n    <title>Swagger UI: OAuth2 Redirect</title>\n</head>\n<body>\n<script>\n    'use strict';\n    function run () {\n        var oauth2 = window.opener.swaggerUIRedirectOauth2;\n        var sentState = oauth2.state;\n        var redirectUrl = oauth2.redirectUrl;\n        var isValid, qp, arr;\n\n        if (/code|token|error/.test(window.location.hash)) {\n            qp = window.location.hash.substring(1).replace('?', '&');\n        } else {\n            qp = location.search.substring(1);\n        }\n\n        arr = qp.split(\"&\");\n        arr.forEach(function (v,i,_arr) { _arr[i] = '\"' + v.replace('=', '\":\"') + '\"';});\n        qp = qp ? JSON.parse('{' + arr.join() + '}',\n                function (key, value) {\n                    return key === \"\" ? value : decodeURIComponent(value);\n                }\n        ) : {};\n\n        isValid = qp.state === sentState;\n\n        if ((\n          oauth2.auth.schema.get(\"flow\") === \"accessCode\" ||\n          oauth2.auth.schema.get(\"flow\") === \"authorizationCode\" ||\n          oauth2.auth.schema.get(\"flow\") === \"authorization_code\"\n        ) && !oauth2.auth.code) {\n            if (!isValid) {\n                oauth2.errCb({\n                    authId: oauth2.auth.name,\n                    source: \"auth\",\n                    level: \"warning\",\n                    message: \"Authorization may be unsafe, passed state was changed in server. The passed state wasn't returned from auth server.\"\n                });\n            }\n\n            if (qp.code) {\n                delete oauth2.state;\n                oauth2.auth.code = qp.code;\n                oauth2.callback({auth: oauth2.auth, redirectUrl: redirectUrl});\n            } else {\n                let oauthErrorMsg;\n                if (qp.error) {\n                    oauthErrorMsg = \"[\"+qp.error+\"]: \" +\n                        (qp.error_description ? qp.error_description+ \". \" : \"no accessCode received from the server. \") +\n                        (qp.error_uri ? \"More info: \"+qp.error_uri : \"\");\n                }\n\n                oauth2.errCb({\n                    authId: oauth2.auth.name,\n                    source: \"auth\",\n                    level: \"error\",\n                    message: oauthErrorMsg || \"[Authorization failed]: no accessCode received from the server.\"\n                });\n            }\n        } else {\n            oauth2.callback({auth: oauth2.auth, token: qp, isValid: isValid, redirectUrl: redirectUrl});\n        }\n        window.close();\n    }\n\n    if (document.readyState !== 'loading') {\n        run();\n    } else {\n        document.addEventListener('DOMContentLoaded', function () {\n            run();\n        });\n    }\n</script>\n</body>\n</html>\n"
+      tags:
+        - Endpoints
+      security: []
+  /api/user:
+    get:
+      summary: ''
+      operationId: getApiUser
+      description: ''
+      parameters: []
+      responses:
+        401:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: Unauthenticated.
+                properties:
+                  message:
+                    type: string
+                    example: Unauthenticated.
+      tags:
+        - Endpoints
+      security: []
+  /api/authors:
+    get:
+      summary: 'Display a listing of the resource.'
+      operationId: displayAListingOfTheResource
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                example: []
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Store a newly created resource in storage.'
+      operationId: storeANewlyCreatedResourceInStorage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: uacbuuqbwbjpnbpixnrzg
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: xquitzon@example.org
+              required:
+                - name
+                - email
+      security: []
+  '/api/authors/{id}':
+    get:
+      summary: 'Display the specified resource.'
+      operationId: displayTheSpecifiedResource
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Author] 14'
+                  exception: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                  file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                  line: 629
+                  trace:
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                      line: 577
+                      function: prepareException
+                      class: Illuminate\Foundation\Exceptions\Handler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\nunomaduro\collision\src\Adapters\Laravel\ExceptionHandler.php'
+                      line: 54
+                      function: render
+                      class: Illuminate\Foundation\Exceptions\Handler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Pipeline.php'
+                      line: 51
+                      function: render
+                      class: NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 146
+                      function: handleException
+                      class: Illuminate\Routing\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php'
+                      line: 50
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Routing\Middleware\SubstituteBindings
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 119
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 805
+                      function: then
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 784
+                      function: runRouteWithinStack
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 748
+                      function: runRoute
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 737
+                      function: dispatchToRoute
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 200
+                      function: dispatch
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 144
+                      function: 'Illuminate\Foundation\Http\{closure}'
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                      line: 21
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php'
+                      line: 31
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                      line: 21
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php'
+                      line: 51
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TrimStrings
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php'
+                      line: 27
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\ValidatePostSize
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php'
+                      line: 110
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php'
+                      line: 62
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\HandleCors
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php'
+                      line: 57
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\TrustProxies
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 119
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 175
+                      function: then
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 144
+                      function: sendRequestThroughRouter
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 310
+                      function: handle
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 298
+                      function: callLaravelOrLumenRoute
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 91
+                      function: makeApiCall
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 44
+                      function: makeResponseCall
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 35
+                      function: makeResponseCallIfConditionsPass
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 236
+                      function: __invoke
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 163
+                      function: iterateThroughStrategies
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 95
+                      function: fetchResponses
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 125
+                      function: processRoute
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 72
+                      function: extractEndpointsInfoFromLaravelApp
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 50
+                      function: extractEndpointsInfoAndWriteToDisk
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Commands\GenerateDocumentation.php'
+                      line: 53
+                      function: get
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 36
+                      function: handle
+                      class: Knuckles\Scribe\Commands\GenerateDocumentation
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Util.php'
+                      line: 41
+                      function: 'Illuminate\Container\{closure}'
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 93
+                      function: unwrapIfClosure
+                      class: Illuminate\Container\Util
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 35
+                      function: callBoundMethod
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Container.php'
+                      line: 662
+                      function: call
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                      line: 213
+                      function: call
+                      class: Illuminate\Container\Container
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Command\Command.php'
+                      line: 279
+                      function: execute
+                      class: Illuminate\Console\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                      line: 182
+                      function: run
+                      class: Symfony\Component\Console\Command\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 1049
+                      function: run
+                      class: Illuminate\Console\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 318
+                      function: doRunCommand
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 169
+                      function: doRun
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php'
+                      line: 196
+                      function: run
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Application.php'
+                      line: 1191
+                      function: handle
+                      class: Illuminate\Foundation\Console\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\artisan'
+                      line: 13
+                      function: handleCommand
+                      class: Illuminate\Foundation\Application
+                      type: '->'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Author] 14'
+                  exception:
+                    type: string
+                    example: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                  file:
+                    type: string
+                    example: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                  line:
+                    type: integer
+                    example: 629
+                  trace:
+                    type: array
+                    example:
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                        line: 577
+                        function: prepareException
+                        class: Illuminate\Foundation\Exceptions\Handler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\nunomaduro\collision\src\Adapters\Laravel\ExceptionHandler.php'
+                        line: 54
+                        function: render
+                        class: Illuminate\Foundation\Exceptions\Handler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Pipeline.php'
+                        line: 51
+                        function: render
+                        class: NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 146
+                        function: handleException
+                        class: Illuminate\Routing\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php'
+                        line: 50
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Routing\Middleware\SubstituteBindings
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 119
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 805
+                        function: then
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 784
+                        function: runRouteWithinStack
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 748
+                        function: runRoute
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 737
+                        function: dispatchToRoute
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 200
+                        function: dispatch
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 144
+                        function: 'Illuminate\Foundation\Http\{closure}'
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                        line: 21
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php'
+                        line: 31
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                        line: 21
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php'
+                        line: 51
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TrimStrings
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php'
+                        line: 27
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\ValidatePostSize
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php'
+                        line: 110
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php'
+                        line: 62
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\HandleCors
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php'
+                        line: 57
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\TrustProxies
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 119
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 175
+                        function: then
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 144
+                        function: sendRequestThroughRouter
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 310
+                        function: handle
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 298
+                        function: callLaravelOrLumenRoute
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 91
+                        function: makeApiCall
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 44
+                        function: makeResponseCall
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 35
+                        function: makeResponseCallIfConditionsPass
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 236
+                        function: __invoke
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 163
+                        function: iterateThroughStrategies
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 95
+                        function: fetchResponses
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 125
+                        function: processRoute
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 72
+                        function: extractEndpointsInfoFromLaravelApp
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 50
+                        function: extractEndpointsInfoAndWriteToDisk
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Commands\GenerateDocumentation.php'
+                        line: 53
+                        function: get
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 36
+                        function: handle
+                        class: Knuckles\Scribe\Commands\GenerateDocumentation
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Util.php'
+                        line: 41
+                        function: 'Illuminate\Container\{closure}'
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 93
+                        function: unwrapIfClosure
+                        class: Illuminate\Container\Util
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 35
+                        function: callBoundMethod
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Container.php'
+                        line: 662
+                        function: call
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                        line: 213
+                        function: call
+                        class: Illuminate\Container\Container
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Command\Command.php'
+                        line: 279
+                        function: execute
+                        class: Illuminate\Console\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                        line: 182
+                        function: run
+                        class: Symfony\Component\Console\Command\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 1049
+                        function: run
+                        class: Illuminate\Console\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 318
+                        function: doRunCommand
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 169
+                        function: doRun
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php'
+                        line: 196
+                        function: run
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Application.php'
+                        line: 1191
+                        function: handle
+                        class: Illuminate\Foundation\Console\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\artisan'
+                        line: 13
+                        function: handleCommand
+                        class: Illuminate\Foundation\Application
+                        type: '->'
+                    items:
+                      type: object
+                      properties:
+                        file:
+                          type: string
+                          example: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                        line:
+                          type: integer
+                          example: 577
+                        function:
+                          type: string
+                          example: prepareException
+                        class:
+                          type: string
+                          example: Illuminate\Foundation\Exceptions\Handler
+                        type:
+                          type: string
+                          example: '->'
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Update the specified resource in storage.'
+      operationId: updateTheSpecifiedResourceInStorage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: qzsphlodfbwsegpyrgownbx
+                email:
+                  type: string
+                  description: 'Must be a valid email address.'
+                  example: herminia81@example.net
+              required:
+                - name
+                - email
+      security: []
+    delete:
+      summary: 'Remove the specified resource from storage.'
+      operationId: removeTheSpecifiedResourceFromStorage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the author.'
+        example: 14
+        required: true
+        schema:
+          type: integer
+  /api/books:
+    get:
+      summary: 'Display a listing of the resource.'
+      operationId: displayAListingOfTheResource
+      description: ''
+      parameters: []
+      responses:
+        200:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                example: []
+      tags:
+        - Endpoints
+      security: []
+    post:
+      summary: 'Store a newly created resource in storage.'
+      operationId: storeANewlyCreatedResourceInStorage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: q
+                isbn:
+                  type: string
+                  description: 'Must not be greater than 13 characters.'
+                  example: gvm
+                published_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2024-05-28T21:46:00'
+                author_id:
+                  type: string
+                  description: ''
+                  example: quibusdam
+              required:
+                - title
+                - isbn
+                - published_date
+                - author_id
+      security: []
+  '/api/books/{id}':
+    get:
+      summary: 'Display the specified resource.'
+      operationId: displayTheSpecifiedResource
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Book] 16'
+                  exception: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                  file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                  line: 629
+                  trace:
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                      line: 577
+                      function: prepareException
+                      class: Illuminate\Foundation\Exceptions\Handler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\nunomaduro\collision\src\Adapters\Laravel\ExceptionHandler.php'
+                      line: 54
+                      function: render
+                      class: Illuminate\Foundation\Exceptions\Handler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Pipeline.php'
+                      line: 51
+                      function: render
+                      class: NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 146
+                      function: handleException
+                      class: Illuminate\Routing\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php'
+                      line: 50
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Routing\Middleware\SubstituteBindings
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 119
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 805
+                      function: then
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 784
+                      function: runRouteWithinStack
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 748
+                      function: runRoute
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 737
+                      function: dispatchToRoute
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 200
+                      function: dispatch
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 144
+                      function: 'Illuminate\Foundation\Http\{closure}'
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                      line: 21
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php'
+                      line: 31
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                      line: 21
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php'
+                      line: 51
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TrimStrings
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php'
+                      line: 27
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\ValidatePostSize
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php'
+                      line: 110
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php'
+                      line: 62
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\HandleCors
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php'
+                      line: 57
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\TrustProxies
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 119
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 175
+                      function: then
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 144
+                      function: sendRequestThroughRouter
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 310
+                      function: handle
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 298
+                      function: callLaravelOrLumenRoute
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 91
+                      function: makeApiCall
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 44
+                      function: makeResponseCall
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 35
+                      function: makeResponseCallIfConditionsPass
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 236
+                      function: __invoke
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 163
+                      function: iterateThroughStrategies
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 95
+                      function: fetchResponses
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 125
+                      function: processRoute
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 72
+                      function: extractEndpointsInfoFromLaravelApp
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 50
+                      function: extractEndpointsInfoAndWriteToDisk
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Commands\GenerateDocumentation.php'
+                      line: 53
+                      function: get
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 36
+                      function: handle
+                      class: Knuckles\Scribe\Commands\GenerateDocumentation
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Util.php'
+                      line: 41
+                      function: 'Illuminate\Container\{closure}'
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 93
+                      function: unwrapIfClosure
+                      class: Illuminate\Container\Util
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 35
+                      function: callBoundMethod
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Container.php'
+                      line: 662
+                      function: call
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                      line: 213
+                      function: call
+                      class: Illuminate\Container\Container
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Command\Command.php'
+                      line: 279
+                      function: execute
+                      class: Illuminate\Console\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                      line: 182
+                      function: run
+                      class: Symfony\Component\Console\Command\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 1049
+                      function: run
+                      class: Illuminate\Console\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 318
+                      function: doRunCommand
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 169
+                      function: doRun
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php'
+                      line: 196
+                      function: run
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Application.php'
+                      line: 1191
+                      function: handle
+                      class: Illuminate\Foundation\Console\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\artisan'
+                      line: 13
+                      function: handleCommand
+                      class: Illuminate\Foundation\Application
+                      type: '->'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Book] 16'
+                  exception:
+                    type: string
+                    example: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                  file:
+                    type: string
+                    example: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                  line:
+                    type: integer
+                    example: 629
+                  trace:
+                    type: array
+                    example:
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                        line: 577
+                        function: prepareException
+                        class: Illuminate\Foundation\Exceptions\Handler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\nunomaduro\collision\src\Adapters\Laravel\ExceptionHandler.php'
+                        line: 54
+                        function: render
+                        class: Illuminate\Foundation\Exceptions\Handler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Pipeline.php'
+                        line: 51
+                        function: render
+                        class: NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 146
+                        function: handleException
+                        class: Illuminate\Routing\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php'
+                        line: 50
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Routing\Middleware\SubstituteBindings
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 119
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 805
+                        function: then
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 784
+                        function: runRouteWithinStack
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 748
+                        function: runRoute
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 737
+                        function: dispatchToRoute
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 200
+                        function: dispatch
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 144
+                        function: 'Illuminate\Foundation\Http\{closure}'
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                        line: 21
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php'
+                        line: 31
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                        line: 21
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php'
+                        line: 51
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TrimStrings
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php'
+                        line: 27
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\ValidatePostSize
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php'
+                        line: 110
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php'
+                        line: 62
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\HandleCors
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php'
+                        line: 57
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\TrustProxies
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 119
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 175
+                        function: then
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 144
+                        function: sendRequestThroughRouter
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 310
+                        function: handle
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 298
+                        function: callLaravelOrLumenRoute
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 91
+                        function: makeApiCall
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 44
+                        function: makeResponseCall
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 35
+                        function: makeResponseCallIfConditionsPass
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 236
+                        function: __invoke
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 163
+                        function: iterateThroughStrategies
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 95
+                        function: fetchResponses
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 125
+                        function: processRoute
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 72
+                        function: extractEndpointsInfoFromLaravelApp
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 50
+                        function: extractEndpointsInfoAndWriteToDisk
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Commands\GenerateDocumentation.php'
+                        line: 53
+                        function: get
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 36
+                        function: handle
+                        class: Knuckles\Scribe\Commands\GenerateDocumentation
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Util.php'
+                        line: 41
+                        function: 'Illuminate\Container\{closure}'
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 93
+                        function: unwrapIfClosure
+                        class: Illuminate\Container\Util
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 35
+                        function: callBoundMethod
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Container.php'
+                        line: 662
+                        function: call
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                        line: 213
+                        function: call
+                        class: Illuminate\Container\Container
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Command\Command.php'
+                        line: 279
+                        function: execute
+                        class: Illuminate\Console\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                        line: 182
+                        function: run
+                        class: Symfony\Component\Console\Command\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 1049
+                        function: run
+                        class: Illuminate\Console\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 318
+                        function: doRunCommand
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 169
+                        function: doRun
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php'
+                        line: 196
+                        function: run
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Application.php'
+                        line: 1191
+                        function: handle
+                        class: Illuminate\Foundation\Console\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\artisan'
+                        line: 13
+                        function: handleCommand
+                        class: Illuminate\Foundation\Application
+                        type: '->'
+                    items:
+                      type: object
+                      properties:
+                        file:
+                          type: string
+                          example: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                        line:
+                          type: integer
+                          example: 577
+                        function:
+                          type: string
+                          example: prepareException
+                        class:
+                          type: string
+                          example: Illuminate\Foundation\Exceptions\Handler
+                        type:
+                          type: string
+                          example: '->'
+      tags:
+        - Endpoints
+      security: []
+    put:
+      summary: 'Update the specified resource in storage.'
+      operationId: updateTheSpecifiedResourceInStorage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: 'Must not be greater than 255 characters.'
+                  example: lshfv
+                isbn:
+                  type: string
+                  description: 'Must not be greater than 13 characters.'
+                  example: vayhutfw
+                published_date:
+                  type: string
+                  description: 'Must be a valid date.'
+                  example: '2024-05-28T21:46:01'
+                author_id:
+                  type: string
+                  description: ''
+                  example: qui
+              required:
+                - title
+                - isbn
+                - published_date
+                - author_id
+      security: []
+    delete:
+      summary: 'Remove the specified resource from storage.'
+      operationId: removeTheSpecifiedResourceFromStorage
+      description: ''
+      parameters: []
+      responses: {  }
+      tags:
+        - Endpoints
+      security: []
+    parameters:
+      -
+        in: path
+        name: id
+        description: 'The ID of the book.'
+        example: 16
+        required: true
+        schema:
+          type: integer
+  /api/books/search:
+    get:
+      summary: ''
+      operationId: getApiBooksSearch
+      description: ''
+      parameters: []
+      responses:
+        404:
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                example:
+                  message: 'No query results for model [App\Models\Book] search'
+                  exception: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                  file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                  line: 629
+                  trace:
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                      line: 577
+                      function: prepareException
+                      class: Illuminate\Foundation\Exceptions\Handler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\nunomaduro\collision\src\Adapters\Laravel\ExceptionHandler.php'
+                      line: 54
+                      function: render
+                      class: Illuminate\Foundation\Exceptions\Handler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Pipeline.php'
+                      line: 51
+                      function: render
+                      class: NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 146
+                      function: handleException
+                      class: Illuminate\Routing\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php'
+                      line: 50
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Routing\Middleware\SubstituteBindings
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 119
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 805
+                      function: then
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 784
+                      function: runRouteWithinStack
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 748
+                      function: runRoute
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                      line: 737
+                      function: dispatchToRoute
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 200
+                      function: dispatch
+                      class: Illuminate\Routing\Router
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 144
+                      function: 'Illuminate\Foundation\Http\{closure}'
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                      line: 21
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php'
+                      line: 31
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                      line: 21
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php'
+                      line: 51
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\TrimStrings
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php'
+                      line: 27
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\ValidatePostSize
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php'
+                      line: 110
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php'
+                      line: 62
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\HandleCors
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php'
+                      line: 57
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 183
+                      function: handle
+                      class: Illuminate\Http\Middleware\TrustProxies
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                      line: 119
+                      function: 'Illuminate\Pipeline\{closure}'
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 175
+                      function: then
+                      class: Illuminate\Pipeline\Pipeline
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                      line: 144
+                      function: sendRequestThroughRouter
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 310
+                      function: handle
+                      class: Illuminate\Foundation\Http\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 298
+                      function: callLaravelOrLumenRoute
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 91
+                      function: makeApiCall
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 44
+                      function: makeResponseCall
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                      line: 35
+                      function: makeResponseCallIfConditionsPass
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 236
+                      function: __invoke
+                      class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 163
+                      function: iterateThroughStrategies
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                      line: 95
+                      function: fetchResponses
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 125
+                      function: processRoute
+                      class: Knuckles\Scribe\Extracting\Extractor
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 72
+                      function: extractEndpointsInfoFromLaravelApp
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                      line: 50
+                      function: extractEndpointsInfoAndWriteToDisk
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Commands\GenerateDocumentation.php'
+                      line: 53
+                      function: get
+                      class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 36
+                      function: handle
+                      class: Knuckles\Scribe\Commands\GenerateDocumentation
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Util.php'
+                      line: 41
+                      function: 'Illuminate\Container\{closure}'
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 93
+                      function: unwrapIfClosure
+                      class: Illuminate\Container\Util
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                      line: 35
+                      function: callBoundMethod
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Container.php'
+                      line: 662
+                      function: call
+                      class: Illuminate\Container\BoundMethod
+                      type: '::'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                      line: 213
+                      function: call
+                      class: Illuminate\Container\Container
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Command\Command.php'
+                      line: 279
+                      function: execute
+                      class: Illuminate\Console\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                      line: 182
+                      function: run
+                      class: Symfony\Component\Console\Command\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 1049
+                      function: run
+                      class: Illuminate\Console\Command
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 318
+                      function: doRunCommand
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                      line: 169
+                      function: doRun
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php'
+                      line: 196
+                      function: run
+                      class: Symfony\Component\Console\Application
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Application.php'
+                      line: 1191
+                      function: handle
+                      class: Illuminate\Foundation\Console\Kernel
+                      type: '->'
+                    -
+                      file: 'C:\wamp64\www\LMS\artisan'
+                      line: 13
+                      function: handleCommand
+                      class: Illuminate\Foundation\Application
+                      type: '->'
+                properties:
+                  message:
+                    type: string
+                    example: 'No query results for model [App\Models\Book] search'
+                  exception:
+                    type: string
+                    example: Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+                  file:
+                    type: string
+                    example: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                  line:
+                    type: integer
+                    example: 629
+                  trace:
+                    type: array
+                    example:
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                        line: 577
+                        function: prepareException
+                        class: Illuminate\Foundation\Exceptions\Handler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\nunomaduro\collision\src\Adapters\Laravel\ExceptionHandler.php'
+                        line: 54
+                        function: render
+                        class: Illuminate\Foundation\Exceptions\Handler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Pipeline.php'
+                        line: 51
+                        function: render
+                        class: NunoMaduro\Collision\Adapters\Laravel\ExceptionHandler
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 146
+                        function: handleException
+                        class: Illuminate\Routing\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Middleware\SubstituteBindings.php'
+                        line: 50
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Routing\Middleware\SubstituteBindings
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 119
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 805
+                        function: then
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 784
+                        function: runRouteWithinStack
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 748
+                        function: runRoute
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Routing\Router.php'
+                        line: 737
+                        function: dispatchToRoute
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 200
+                        function: dispatch
+                        class: Illuminate\Routing\Router
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 144
+                        function: 'Illuminate\Foundation\Http\{closure}'
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                        line: 21
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull.php'
+                        line: 31
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TransformsRequest.php'
+                        line: 21
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\TrimStrings.php'
+                        line: 51
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TransformsRequest
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\TrimStrings
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\ValidatePostSize.php'
+                        line: 27
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\ValidatePostSize
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance.php'
+                        line: 110
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\HandleCors.php'
+                        line: 62
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\HandleCors
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Http\Middleware\TrustProxies.php'
+                        line: 57
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 183
+                        function: handle
+                        class: Illuminate\Http\Middleware\TrustProxies
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Pipeline\Pipeline.php'
+                        line: 119
+                        function: 'Illuminate\Pipeline\{closure}'
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 175
+                        function: then
+                        class: Illuminate\Pipeline\Pipeline
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Http\Kernel.php'
+                        line: 144
+                        function: sendRequestThroughRouter
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 310
+                        function: handle
+                        class: Illuminate\Foundation\Http\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 298
+                        function: callLaravelOrLumenRoute
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 91
+                        function: makeApiCall
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 44
+                        function: makeResponseCall
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Strategies\Responses\ResponseCalls.php'
+                        line: 35
+                        function: makeResponseCallIfConditionsPass
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 236
+                        function: __invoke
+                        class: Knuckles\Scribe\Extracting\Strategies\Responses\ResponseCalls
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 163
+                        function: iterateThroughStrategies
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Extracting\Extractor.php'
+                        line: 95
+                        function: fetchResponses
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 125
+                        function: processRoute
+                        class: Knuckles\Scribe\Extracting\Extractor
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 72
+                        function: extractEndpointsInfoFromLaravelApp
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\GroupedEndpoints\GroupedEndpointsFromApp.php'
+                        line: 50
+                        function: extractEndpointsInfoAndWriteToDisk
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\knuckleswtf\scribe\src\Commands\GenerateDocumentation.php'
+                        line: 53
+                        function: get
+                        class: Knuckles\Scribe\GroupedEndpoints\GroupedEndpointsFromApp
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 36
+                        function: handle
+                        class: Knuckles\Scribe\Commands\GenerateDocumentation
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Util.php'
+                        line: 41
+                        function: 'Illuminate\Container\{closure}'
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 93
+                        function: unwrapIfClosure
+                        class: Illuminate\Container\Util
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php'
+                        line: 35
+                        function: callBoundMethod
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Container\Container.php'
+                        line: 662
+                        function: call
+                        class: Illuminate\Container\BoundMethod
+                        type: '::'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                        line: 213
+                        function: call
+                        class: Illuminate\Container\Container
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Command\Command.php'
+                        line: 279
+                        function: execute
+                        class: Illuminate\Console\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Console\Command.php'
+                        line: 182
+                        function: run
+                        class: Symfony\Component\Console\Command\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 1049
+                        function: run
+                        class: Illuminate\Console\Command
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 318
+                        function: doRunCommand
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\symfony\console\Application.php'
+                        line: 169
+                        function: doRun
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php'
+                        line: 196
+                        function: run
+                        class: Symfony\Component\Console\Application
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Application.php'
+                        line: 1191
+                        function: handle
+                        class: Illuminate\Foundation\Console\Kernel
+                        type: '->'
+                      -
+                        file: 'C:\wamp64\www\LMS\artisan'
+                        line: 13
+                        function: handleCommand
+                        class: Illuminate\Foundation\Application
+                        type: '->'
+                    items:
+                      type: object
+                      properties:
+                        file:
+                          type: string
+                          example: 'C:\wamp64\www\LMS\vendor\laravel\framework\src\Illuminate\Foundation\Exceptions\Handler.php'
+                        line:
+                          type: integer
+                          example: 577
+                        function:
+                          type: string
+                          example: prepareException
+                        class:
+                          type: string
+                          example: Illuminate\Foundation\Exceptions\Handler
+                        type:
+                          type: string
+                          example: '->'
+      tags:
+        - Endpoints
+      security: []
+tags:
+  -
+    name: Endpoints
+    description: ''

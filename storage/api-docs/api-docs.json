@@ -1,0 +1,468 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Author API",
+        "description": "API for managing authors",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/authors": {
+            "get": {
+                "summary": "Get list of authors",
+                "operationId": "0c71439e213e1b284fc37995d74bca2b",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Author"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new author",
+                "operationId": "291d8539d3b5490d46fe9f2ebd84c64c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreAuthorRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Author created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Author"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/authors/{id}": {
+            "get": {
+                "summary": "Get a specific author",
+                "operationId": "c14c739d68f46a33acfd0694a12c27dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Author"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Author not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a specific author",
+                "operationId": "2a9f154a4061c0d3257520aba98221a5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAuthorRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Author updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Author"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Author not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific author",
+                "operationId": "c04021713290d77b82e912ec58f94c36",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "description": "Author not found"
+                    }
+                }
+            }
+        },
+        "/api/books": {
+            "get": {
+                "summary": "Get list of books",
+                "operationId": "a9d13283dfab262e97af3c914d51b7a8",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Book"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new book",
+                "operationId": "47047e95a700b3271b697e57d0965191",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreBookRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Book created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Book"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/books/{id}": {
+            "get": {
+                "summary": "Get a specific book",
+                "operationId": "2fdd668eb661591758aff4c56ca9b66a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Book"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a specific book",
+                "operationId": "f5ca658c501a803d68655af0365e3802",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBookRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Book updated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Book"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Book not found"
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a specific book",
+                "operationId": "1a9c26667c32b8ed5e5770d7a1cc9d5c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No content"
+                    },
+                    "404": {
+                        "description": "Book not found"
+                    }
+                }
+            }
+        },
+        "/api/books/search": {
+            "get": {
+                "summary": "Search books by title",
+                "operationId": "a50e12f6ebf00d1971a30d2fe743509c",
+                "parameters": [
+                    {
+                        "name": "title",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Book"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Author": {
+                "title": "Author",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "johndoe@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreAuthorRequest": {
+                "required": [
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "johndoe@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateAuthorRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "johndoe@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "Book": {
+                "title": "Book",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "The Great Gatsby"
+                    },
+                    "isbn": {
+                        "type": "string",
+                        "example": "978-3-16-148410-0"
+                    },
+                    "published_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1925-04-10"
+                    },
+                    "author_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-01-01T00:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreBookRequest": {
+                "required": [
+                    "title",
+                    "isbn",
+                    "published_date",
+                    "author_id"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "The Great Gatsby"
+                    },
+                    "isbn": {
+                        "type": "string",
+                        "example": "978-3-16-148410-0"
+                    },
+                    "published_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1925-04-10"
+                    },
+                    "author_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateBookRequest": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "The Great Gatsby"
+                    },
+                    "isbn": {
+                        "type": "string",
+                        "example": "978-3-16-148410-0"
+                    },
+                    "published_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1925-04-10"
+                    },
+                    "author_id": {
+                        "type": "integer",
+                        "example": 1
+                    }
+                },
+                "type": "object"
+            }
+        }
+    }
+}
