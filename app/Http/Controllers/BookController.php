@@ -127,11 +127,10 @@ class BookController extends Controller
      *     )
      * )
      */
-    public function destroy(string $id)
+    public function destroy(string $id): void
     {
         $book = Book::findOrFail($id);
         $book->delete();
-        return response()->noContent();
     }
 
     /**
